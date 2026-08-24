@@ -25,6 +25,31 @@ python -m nsf_exporter input.nsf output --duration 30 --format ogg --sample-rate
 python -m nsf_exporter input.nsf output --ffmpeg C:\\tools\\ffmpeg.exe --libgme C:\\tools\\gme.dll
 ```
 
+### Windows 一键转换
+
+项目目录约定：
+
+```text
+项目目录/
+├── input/
+│   └── sgz.nsf
+├── output/
+├── convert.ps1
+└── convert.bat
+```
+
+将 NSF 文件放入 `input` 目录后运行：
+
+```powershell
+.\\convert.ps1 sgz.nsf
+.\\convert.ps1 sgz.nsf -Duration 180 -Format mp3
+convert.bat sgz.nsf -Duration 1 -Format ogg
+```
+
+脚本默认使用 OGG、180 秒和 44100 Hz。FFmpeg 与 libgme 默认路径为当前用户的安装路径；如果实际安装位置不同，请修改 `convert.ps1` 中的 `$Ffmpeg` 和 `$LibGme` 变量。源文件名只能是 `input` 目录下的文件名，不能使用绝对路径或目录分隔符。
+
+编码临时文件现在创建在 `output` 目录所在磁盘，并通过原子替换写入最终文件，避免系统临时目录与项目输出目录跨磁盘移动时出现 `WinError 17`。
+
 支持 `mp3` 和 `ogg` 两种格式。默认每首曲目渲染 180 秒、采样率为 44100 Hz。NSF 通常没有可靠的曲目结束标记，因此时长是固定值，可能产生尾部静音或截断循环曲目。
 
 输出按曲目顺序使用两位数字命名，例如 `01.mp3`、`02.mp3`。如果文件已存在，则自动使用 `01_1.mp3`、`01_2.mp3` 等名称，不覆盖已有文件。

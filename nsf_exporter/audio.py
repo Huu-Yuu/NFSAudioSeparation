@@ -24,7 +24,7 @@ def write_wav(path, pcm_data, sample_rate):
 def encode_with_ffmpeg(pcm_data, output_path, format_name, ffmpeg="ffmpeg", sample_rate=44100):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory() as temp_dir:
+    with tempfile.TemporaryDirectory(dir=output_path.parent) as temp_dir:
         wav_path = Path(temp_dir) / "input.wav"
         encoded_path = Path(temp_dir) / f"output.{format_name}"
         write_wav(wav_path, pcm_data, sample_rate)
