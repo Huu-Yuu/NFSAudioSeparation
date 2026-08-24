@@ -13,6 +13,11 @@ class FFmpegDependencyError(AudioEncodingError):
     pass
 
 
+TRAILING_SILENCE_FILTER = (
+    "silenceremove=stop_periods=1:stop_duration=0.5:stop_threshold=-50dB"
+)
+
+
 def write_wav(path, pcm_data, sample_rate):
     with wave.open(os.fspath(path), "wb") as wav_file:
         wav_file.setnchannels(2)
@@ -28,7 +33,17 @@ def encode_with_ffmpeg(pcm_data, output_path, format_name, ffmpeg="ffmpeg", samp
         wav_path = Path(temp_dir) / "input.wav"
         encoded_path = Path(temp_dir) / f"output.{format_name}"
         write_wav(wav_path, pcm_data, sample_rate)
-        command = [ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-i", str(wav_path)]
+        command = [
+            ffmpeg,
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            str(wav_path),
+            "-af",
+            TRAILING_SILENCE_FILTER,
+        ]
         if format_name == "mp3":
             command += ["-codec:a", "libmp3lame", "-q:a", "2"]
         elif format_name == "ogg":
